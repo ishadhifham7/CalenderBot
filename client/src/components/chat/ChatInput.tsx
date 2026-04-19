@@ -3,9 +3,10 @@ import { useState } from "react";
 interface Props {
   onSend: (message: string) => void;
   loading: boolean;
+  error: string | null;
 }
 
-const ChatInput = ({ onSend, loading }: Props) => {
+const ChatInput = ({ onSend, loading, error }: Props) => {
   const [text, setText] = useState<string>("");
 
   const handleSend = () => {
@@ -25,8 +26,10 @@ const ChatInput = ({ onSend, loading }: Props) => {
       />
 
       <button onClick={handleSend} disabled={loading}>
-        Send
+        {loading ? "Thinking..." : "Send"}
       </button>
+
+      {error ? <p className="chat-error">{error}</p> : null}
 
       <style>{`
         .chat-input {
@@ -51,6 +54,24 @@ const ChatInput = ({ onSend, loading }: Props) => {
           border: none;
           border-radius: 8px;
           font-size: 13px;
+        }
+
+        .chat-error {
+          margin: 0;
+          font-size: 12px;
+          color: #b91c1c;
+          position: absolute;
+          bottom: 48px;
+          left: 10px;
+          right: 10px;
+          background: #fee2e2;
+          border: 1px solid #fecaca;
+          border-radius: 8px;
+          padding: 6px 8px;
+        }
+
+        .chat-input {
+          position: relative;
         }
       `}</style>
     </div>

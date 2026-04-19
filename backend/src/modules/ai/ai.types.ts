@@ -12,12 +12,18 @@ export type IntentResult = {
 export type AIInput = {
   message: string;
   intent: IntentResult;
-  schedule: Array<{
-    id: number;
-    title: string;
-    start: string;
-    end: string;
-  }>;
+  schedule: {
+    events: Array<{
+      id: number;
+      title: string;
+      start: string;
+      end: string;
+    }>;
+    freeSlots: Array<{
+      from: Date;
+      to: Date;
+    }>;
+  };
 };
 
 export type AIResponse = {

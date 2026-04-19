@@ -2,7 +2,6 @@ import { generateAIResponse } from "../ai/ai.service";
 import { detectIntent } from "../intent/intent.service";
 import {
   getFreeSlotsForDate,
-  getNextEvent,
   getScheduleByDate,
 } from "../schedule/schedule.service";
 
@@ -33,27 +32,16 @@ export const handleUserMessage = async (
 ): Promise<ChatResult> => {
   const intentResult = detectIntent(message);
 
-  let schedule: ScheduleEvent[] = [];
-
-  if (intentResult.intent === "FREE_TIME") {
-    const freeSlots = getFreeSlotsForDate(intentResult.date);
-    schedule = freeSlots.map((slot, index) => ({
-      id: index + 1,
-      title: "Free Slot",
-      start: slot.from.toISOString(),
-      end: slot.to.toISOString(),
-    }));
-  } else if (intentResult.intent === "NEXT_EVENT") {
-    const nextEvent = getNextEvent();
-    schedule = nextEvent ? [toScheduleEvent(nextEvent)] : [];
-  } else if (intentResult.intent === "DAILY_SCHEDULE") {
-    schedule = getScheduleByDate(intentResult.date).map(toScheduleEvent);
-  }
+  const events = getScheduleByDate(intentResult.date).map(toScheduleEvent);
+  const freeSlots = getFreeSlotsForDate(intentResult.date);
 
   const aiResult = await generateAIResponse({
     message,
     intent: intentResult,
-    schedule,
+    schedule: {
+      events,
+      freeSlots,
+    },
   });
 
   return {

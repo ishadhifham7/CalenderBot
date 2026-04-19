@@ -3,7 +3,7 @@ import ChatInput from "../chat/ChatInput";
 import { useAssistant } from "../../features/assistant/assistantHooks";
 
 const WidgetContainer = () => {
-  const { messages, sendMessage, loading } = useAssistant();
+  const { messages, sendMessage, loading, error } = useAssistant();
 
   return (
     <div className="widget-container">
@@ -11,7 +11,7 @@ const WidgetContainer = () => {
 
       <ChatBox messages={messages} />
 
-      <ChatInput onSend={sendMessage} loading={loading} />
+      <ChatInput onSend={sendMessage} loading={loading} error={error} />
 
       <style>{`
         .widget-container {

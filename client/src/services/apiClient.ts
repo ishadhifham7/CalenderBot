@@ -34,9 +34,11 @@ export const apiClient = async <TResponse>(
       isJson &&
       payload !== null &&
       typeof payload === "object" &&
-      "message" in payload &&
-      typeof payload.message === "string"
-        ? payload.message
+      (("message" in payload && typeof payload.message === "string") ||
+        ("error" in payload && typeof payload.error === "string"))
+        ? "message" in payload && typeof payload.message === "string"
+          ? payload.message
+          : (payload as { error: string }).error
         : `Request failed with status ${response.status}`;
 
     throw new Error(errorMessage);

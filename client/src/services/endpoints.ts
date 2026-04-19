@@ -1,3 +1,3 @@
 export const ENDPOINTS = {
-  ASK_ASSISTANT: "/ask",
+  ASK_ASSISTANT: "/chat",
 };

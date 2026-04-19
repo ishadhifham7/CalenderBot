@@ -12,7 +12,11 @@ export type IntentResult = {
 };
 
 const hasFreeTimeIntent = (text: string): boolean => {
-  return text.includes("free time") || text.includes("when am i free");
+  return (
+    text.includes("free time") ||
+    text.includes("when am i free") ||
+    text.includes("am i free")
+  );
 };
 
 const hasNextEventIntent = (text: string): boolean => {
@@ -20,7 +24,11 @@ const hasNextEventIntent = (text: string): boolean => {
 };
 
 const hasScheduleIntent = (text: string): boolean => {
-  return text.includes("schedule") || text === "today" || text === "tomorrow";
+  return (
+    text.includes("schedule") ||
+    text.includes("today") ||
+    text.includes("tomorrow")
+  );
 };
 
 const resolveDate = (text: string): string => {
