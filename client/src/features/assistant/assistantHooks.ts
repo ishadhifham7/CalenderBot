@@ -38,8 +38,12 @@ export const useAssistant = () => {
       };
 
       addMessage(aiMessage);
-    } catch {
-      setError("I could not process your request right now. Please try again.");
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error && err.message
+          ? err.message
+          : "I could not process your request right now. Please try again.";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
