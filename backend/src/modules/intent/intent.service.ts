@@ -6,79 +6,53 @@ export type IntentType =
   | "DAILY_SCHEDULE"
   | "UNKNOWN";
 
-export interface IntentResult {
+export type IntentResult = {
   intent: IntentType;
   date: string;
-}
-
-const FREE_TIME_PATTERNS: RegExp[] = [
-  /when\s+am\s+i\s+free/i,
-  /free\s*time/i,
-  /\bfree\b/i,
-];
-
-const NEXT_EVENT_PATTERNS: RegExp[] = [
-  /next\s+event/i,
-  /next\s+class/i,
-  /what\s+is\s+my\s+next\s+class/i,
-];
-
-const DAILY_SCHEDULE_PATTERNS: RegExp[] = [
-  /\bschedule\b/i,
-  /\bplan\b/i,
-  /\btoday\b/i,
-  /\btomorrow\b/i,
-];
-
-const includesAnyPattern = (message: string, patterns: RegExp[]): boolean => {
-  return patterns.some((pattern) => pattern.test(message));
 };
 
-const resolveDateFromMessage = (message: string): string => {
-  const today = getTodayDate();
+const hasFreeTimeIntent = (text: string): boolean => {
+  return text.includes("free time") || text.includes("when am i free");
+};
 
-  if (/\btomorrow\b/i.test(message)) {
-    return addDays(today, 1);
+const hasNextEventIntent = (text: string): boolean => {
+  return text.includes("next event") || text.includes("next class");
+};
+
+const hasScheduleIntent = (text: string): boolean => {
+  return text.includes("schedule") || text === "today" || text === "tomorrow";
+};
+
+const resolveDate = (text: string): string => {
+  const today = getTodayDate();
+  const extracted = extractDateFromText(text);
+
+  if (extracted) {
+    return extracted;
   }
 
-  const extractedDate = extractDateFromText(message);
-  if (extractedDate) {
-    return extractedDate;
+  if (text.includes("tomorrow")) {
+    return addDays(today, 1);
   }
 
   return today;
 };
 
 export const detectIntent = (message: string): IntentResult => {
-  const normalizedMessage = message.trim().toLowerCase();
-  const date = resolveDateFromMessage(normalizedMessage);
+  const normalized = message.trim().toLowerCase();
+  const date = resolveDate(normalized);
 
-  if (includesAnyPattern(normalizedMessage, FREE_TIME_PATTERNS)) {
-    return {
-      intent: "FREE_TIME",
-      date,
-    };
+  if (hasFreeTimeIntent(normalized)) {
+    return { intent: "FREE_TIME", date };
   }
 
-  if (includesAnyPattern(normalizedMessage, NEXT_EVENT_PATTERNS)) {
-    return {
-      intent: "NEXT_EVENT",
-      date,
-    };
+  if (hasNextEventIntent(normalized)) {
+    return { intent: "NEXT_EVENT", date };
   }
 
-  if (
-    includesAnyPattern(normalizedMessage, DAILY_SCHEDULE_PATTERNS) ||
-    Boolean(extractDateFromText(normalizedMessage))
-  ) {
-    return {
-      intent: "DAILY_SCHEDULE",
-      date,
-    };
+  if (hasScheduleIntent(normalized) || extractDateFromText(normalized)) {
+    return { intent: "DAILY_SCHEDULE", date };
   }
 
-  return {
-    intent: "UNKNOWN",
-    date,
-  };
+  return { intent: "UNKNOWN", date };
 };
