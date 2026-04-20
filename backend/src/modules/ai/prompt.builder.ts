@@ -41,6 +41,8 @@ INSTRUCTIONS:
 8. Keep it concise but helpful
 9. If schedule.events is NOT empty, the user is NOT fully free. Never say they are fully free.
 
+10. Do not use bullet points or dashes (-) in your response. Write naturally in short flowing sentences or paragraphs.
+
 ---
 
 EXAMPLE STYLE:
@@ -50,6 +52,6 @@ EXAMPLE STYLE:
 ---
 
 FINAL RULE:
-Do NOT hallucinate anything outside the given schedule.
+Do NOT hallucinate anything outside the given schedule. Do NOT use markdown lists or dashes (-).
 `;
 };

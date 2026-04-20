@@ -7,7 +7,7 @@ const WidgetContainer = () => {
 
   return (
     <div className="widget-container">
-      <div className="widget-header">AI Assistant</div>
+      <div className="widget-header">CalenderBot</div>
 
       <ChatBox messages={messages} />
 

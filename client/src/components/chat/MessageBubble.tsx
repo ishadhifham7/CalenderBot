@@ -8,7 +8,9 @@ const MessageBubble = ({ message }: Props) => {
   const isUser = message.role === "user";
 
   return (
-    <div className={`message-wrapper ${isUser ? "user-wrapper" : "ai-wrapper"}`}>
+    <div
+      className={`message-wrapper ${isUser ? "user-wrapper" : "ai-wrapper"}`}
+    >
       <div className={`bubble ${isUser ? "user" : "assistant"}`}>
         {message.content}
       </div>
@@ -28,13 +30,16 @@ const MessageBubble = ({ message }: Props) => {
         }
 
         .bubble {
-          padding: 10px 14px;
-          border-radius: 14px;
+          padding: 12px 16px;
+          border-radius: 16px;
           max-width: 80%;
-          font-size: 14px;
-          line-height: 1.5;
-          letter-spacing: -0.01em;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+          font-size: 14.5px;
+          font-weight: 400;
+          line-height: 1.55;
+          letter-spacing: -0.015em;
           text-align: left;
+          box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
 
         .user {
