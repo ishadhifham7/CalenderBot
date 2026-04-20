@@ -47,15 +47,7 @@ The backend is deployed using WSO2 Choreo, providing:
 
 ---
 
-## 🔗 Links
-
-- GitHub Repo: (your link)  
-- Blog Post: (your Medium link)  
-
----
-
 ## 📌 Future Improvements
 
 - Add event creation via chatbot  
-- Improve natural language understanding  
-- Add authentication support  
+- Natural voice assisstants feature 
