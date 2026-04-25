@@ -18,6 +18,29 @@ type ChatResult = {
   date: string;
 };
 
+const isEventScheduleQuestion = (message: string): boolean => {
+  const normalized = message.toLowerCase();
+
+  return (
+    normalized.includes("events scheduled") ||
+    normalized.includes("any events") ||
+    normalized.includes("do i have events") ||
+    normalized.includes("what events")
+  );
+};
+
+const formatEventScheduleAnswer = (
+  date: string,
+  events: ScheduleEvent[],
+): string => {
+  if (events.length === 0) {
+    return "You are fully free today. No events are scheduled.";
+  }
+
+  const eventNames = events.map((event) => event.title).join(", ");
+  return `Yeah, you have ${events.length} event${events.length > 1 ? "s" : ""} today: ${eventNames}.`;
+};
+
 const toScheduleEvent = (
   event: Pick<ScheduleEvent, "id" | "title" | "start" | "end">,
 ): ScheduleEvent => ({
@@ -34,6 +57,14 @@ export const handleUserMessage = async (
 
   const events = getScheduleByDate(intentResult.date).map(toScheduleEvent);
   const freeSlots = getFreeSlotsForDate(intentResult.date);
+
+  if (isEventScheduleQuestion(message)) {
+    return {
+      answer: formatEventScheduleAnswer(intentResult.date, events),
+      intent: intentResult.intent,
+      date: intentResult.date,
+    };
+  }
 
   const aiResult = await generateAIResponse({
     message,
