@@ -21,9 +21,17 @@ export const postChat = async (
   try {
     const result = await handleUserMessage(message);
     res.status(200).json(result);
-  } catch {
+  } catch (error) {
+    console.error("[chat] handleUserMessage failed", error);
+
+    const isProduction = process.env.NODE_ENV === "production";
+    const errorMessage =
+      !isProduction && error instanceof Error
+        ? error.message
+        : "Internal server error";
+
     res.status(500).json({
-      error: "Internal server error",
+      error: errorMessage,
     });
   }
 };
