@@ -1,6 +1,6 @@
 import Groq from "groq-sdk";
 
-const DEFAULT_MODEL = "llama3-8b-8192";
+const DEFAULT_MODEL = "llama-3.1-8b-instant";
 
 let aiClient: Groq | null = null;
 
