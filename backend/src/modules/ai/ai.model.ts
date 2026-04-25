@@ -18,6 +18,10 @@ const getModelName = (): string => {
   return process.env.GROQ_MODEL?.trim() || DEFAULT_MODEL;
 };
 
+export const getActiveModel = (): string => {
+  return getModelName();
+};
+
 const getClient = (): Groq => {
   if (!aiClient) {
     aiClient = new Groq({
