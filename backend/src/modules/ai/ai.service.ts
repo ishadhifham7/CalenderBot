@@ -1,4 +1,4 @@
-import { callGemini } from "./gemini.client";
+import { callAi } from "./ai.model";
 import { buildPrompt } from "./prompt.builder";
 import { AIInput, AIResponse } from "./ai.types";
 
@@ -18,7 +18,7 @@ export const generateAIResponse = async (
     message,
   });
 
-  const result = await callGemini(prompt);
+  const result = await callAi(prompt);
 
   return {
     answer: result.trim(),
