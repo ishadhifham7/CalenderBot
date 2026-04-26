@@ -1,11 +1,12 @@
 import { getEventsForDate } from "../calender/googleCalendar.service";
 
 const test = async () => {
-  const fakeAuth = {}; // we will replace later
+  console.log("Running calendar test...");
 
-  const events = await getEventsForDate(fakeAuth, "2026-04-25");
+  const events = await getEventsForDate("2026-04-26");
 
-  console.log(events);
+  console.log("EVENTS:");
+  console.log(JSON.stringify(events, null, 2));
 };
 
 test();

@@ -25,3 +25,8 @@ Thumbs.db
 
 # TypeScript cache
 *.tsbuildinfo
+
+service-account.json
+service-account.json.json
+src/modules/calender/service-account.json
+src/modules/calender/service-account.json.json
