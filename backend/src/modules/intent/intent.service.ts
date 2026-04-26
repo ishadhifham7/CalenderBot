@@ -1,4 +1,9 @@
-import { addDays, extractDateFromText, getTodayDate } from "./intent.utils";
+import {
+  addDays,
+  extractDateFromText,
+  extractDateRangeFromText,
+  getTodayDate,
+} from "./intent.utils";
 
 export type IntentType =
   | "FREE_TIME"
@@ -6,9 +11,21 @@ export type IntentType =
   | "DAILY_SCHEDULE"
   | "UNKNOWN";
 
+export type ScheduleQuery =
+  | {
+      type: "date";
+      date: string;
+    }
+  | {
+      type: "range";
+      startDate: string;
+      endDate: string;
+    };
+
 export type IntentResult = {
   intent: IntentType;
   date: string;
+  scheduleQuery: ScheduleQuery;
 };
 
 const hasFreeTimeIntent = (text: string): boolean => {
@@ -46,21 +63,42 @@ const resolveDate = (text: string): string => {
   return today;
 };
 
+const resolveScheduleQuery = (text: string): ScheduleQuery => {
+  const dateRange = extractDateRangeFromText(text);
+
+  if (dateRange) {
+    return {
+      type: "range",
+      startDate: dateRange.startDate,
+      endDate: dateRange.endDate,
+    };
+  }
+
+  return {
+    type: "date",
+    date: resolveDate(text),
+  };
+};
+
 export const detectIntent = (message: string): IntentResult => {
   const normalized = message.trim().toLowerCase();
-  const date = resolveDate(normalized);
+  const scheduleQuery = resolveScheduleQuery(normalized);
+  const date =
+    scheduleQuery.type === "date"
+      ? scheduleQuery.date
+      : scheduleQuery.startDate;
 
   if (hasFreeTimeIntent(normalized)) {
-    return { intent: "FREE_TIME", date };
+    return { intent: "FREE_TIME", date, scheduleQuery };
   }
 
   if (hasNextEventIntent(normalized)) {
-    return { intent: "NEXT_EVENT", date };
+    return { intent: "NEXT_EVENT", date, scheduleQuery };
   }
 
   if (hasScheduleIntent(normalized) || extractDateFromText(normalized)) {
-    return { intent: "DAILY_SCHEDULE", date };
+    return { intent: "DAILY_SCHEDULE", date, scheduleQuery };
   }
 
-  return { intent: "UNKNOWN", date };
+  return { intent: "UNKNOWN", date, scheduleQuery };
 };
