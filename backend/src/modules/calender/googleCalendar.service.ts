@@ -2,7 +2,7 @@ import { google } from "googleapis";
 import fs from "fs";
 import path from "path";
 import { normalizeEvents } from "./calender.mapper";
-import { calculateFreeSlots } from "../../shared/utils/freeSlots.util";
+import { calculateFreeSlots } from "../../utils/freeSlots.util";
 
 const CALENDAR_SCOPES = ["https://www.googleapis.com/auth/calendar"];
 
