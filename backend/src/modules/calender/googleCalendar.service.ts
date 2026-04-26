@@ -1,47 +1,32 @@
 import { google } from "googleapis";
-import fs from "fs";
-import path from "path";
 import { normalizeEvents } from "./calender.mapper";
 import { calculateFreeSlots } from "../../utils/freeSlots.util";
 
 const CALENDAR_SCOPES = ["https://www.googleapis.com/auth/calendar"];
 
-const resolveServiceAccountKeyFile = () => {
-  const candidates = [
-    process.env.GOOGLE_SERVICE_ACCOUNT_KEY_FILE,
-    path.resolve(process.cwd(), "service-account.local.json"),
-    path.resolve(process.cwd(), "service-account.json"),
-    path.resolve(
-      process.cwd(),
-      "src/modules/calender/service-account.local.json",
-    ),
-    path.resolve(process.cwd(), "src/modules/calender/service-account.json"),
-    path.resolve(
-      process.cwd(),
-      "src/modules/calender/service-account.json.json",
-    ),
-    path.resolve(__dirname, "service-account.local.json"),
-    path.resolve(__dirname, "service-account.json"),
-    path.resolve(__dirname, "service-account.json.json"),
-  ].filter(Boolean) as string[];
-
-  const existing = candidates.find((p) => fs.existsSync(p));
-
-  return existing;
-};
-
 const buildGoogleAuth = () => {
-  const keyFile = resolveServiceAccountKeyFile();
-  if (keyFile) {
-    return new google.auth.GoogleAuth({
-      keyFile,
-      scopes: CALENDAR_SCOPES,
-    });
+  const rawCredentials = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
+
+  if (!rawCredentials) {
+    throw new Error(
+      "GOOGLE_SERVICE_ACCOUNT_KEY is not set. Add the full service account JSON as an environment variable.",
+    );
   }
 
-  throw new Error(
-    "Service account file not found. Set GOOGLE_SERVICE_ACCOUNT_KEY_FILE or add an untracked key at backend/service-account.local.json.",
-  );
+  let credentials: Record<string, unknown>;
+
+  try {
+    credentials = JSON.parse(rawCredentials) as Record<string, unknown>;
+  } catch {
+    throw new Error(
+      "GOOGLE_SERVICE_ACCOUNT_KEY is not valid JSON. Paste the full service account JSON string as-is.",
+    );
+  }
+
+  return new google.auth.GoogleAuth({
+    credentials,
+    scopes: CALENDAR_SCOPES,
+  });
 };
 
 let calendarClient: ReturnType<typeof google.calendar> | null = null;
