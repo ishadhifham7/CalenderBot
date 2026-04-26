@@ -27,6 +27,8 @@ Thumbs.db
 *.tsbuildinfo
 
 service-account.json
+service-account.local.json
 service-account.json.json
 src/modules/calender/service-account.json
+src/modules/calender/service-account.local.json
 src/modules/calender/service-account.json.json
