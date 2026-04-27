@@ -4,29 +4,44 @@ import { calculateFreeSlots } from "../../utils/freeSlots.util";
 
 const CALENDAR_SCOPES = ["https://www.googleapis.com/auth/calendar"];
 
+import fs from "fs";
+import path from "path";
+
 const buildGoogleAuth = () => {
   const rawCredentials = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
+  const keyFilePath = process.env.GOOGLE_SERVICE_ACCOUNT_KEY_FILE;
 
-  if (!rawCredentials) {
-    throw new Error(
-      "GOOGLE_SERVICE_ACCOUNT_KEY is not set. Add the full service account JSON as an environment variable.",
-    );
+  // ✅ OPTION 1 — ENV JSON (Production)
+  if (rawCredentials) {
+    try {
+      const credentials = JSON.parse(rawCredentials);
+
+      return new google.auth.GoogleAuth({
+        credentials,
+        scopes: CALENDAR_SCOPES,
+      });
+    } catch {
+      throw new Error("Invalid GOOGLE_SERVICE_ACCOUNT_KEY JSON");
+    }
   }
 
-  let credentials: Record<string, unknown>;
+  // ✅ OPTION 2 — FILE (Local Dev)
+  if (keyFilePath) {
+    const resolvedPath = path.resolve(process.cwd(), keyFilePath);
 
-  try {
-    credentials = JSON.parse(rawCredentials) as Record<string, unknown>;
-  } catch {
-    throw new Error(
-      "GOOGLE_SERVICE_ACCOUNT_KEY is not valid JSON. Paste the full service account JSON string as-is.",
-    );
+    if (!fs.existsSync(resolvedPath)) {
+      throw new Error(`Service account file not found at ${resolvedPath}`);
+    }
+
+    return new google.auth.GoogleAuth({
+      keyFile: resolvedPath,
+      scopes: CALENDAR_SCOPES,
+    });
   }
 
-  return new google.auth.GoogleAuth({
-    credentials,
-    scopes: CALENDAR_SCOPES,
-  });
+  throw new Error(
+    "No Google credentials found. Set GOOGLE_SERVICE_ACCOUNT_KEY or GOOGLE_SERVICE_ACCOUNT_KEY_FILE",
+  );
 };
 
 let calendarClient: ReturnType<typeof google.calendar> | null = null;

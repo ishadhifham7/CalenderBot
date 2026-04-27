@@ -1,4 +1,5 @@
 const DATE_REGEX = /\b(\d{4}-\d{2}-\d{2})\b/;
+const DATE_REGEX_GLOBAL = /\b(\d{4}-\d{2}-\d{2})\b/g;
 
 const WEEKDAYS = [
   "sunday",
@@ -70,7 +71,7 @@ export const extractDateRangeFromText = (
 ): { startDate: string; endDate: string } | null => {
   const today = getTodayDate();
 
-  const allDateMatches = Array.from(message.matchAll(DATE_REGEX)).map(
+  const allDateMatches = Array.from(message.matchAll(DATE_REGEX_GLOBAL)).map(
     (match) => match[1],
   );
 
