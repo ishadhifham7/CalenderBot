@@ -20,6 +20,12 @@ export type ScheduleQuery =
       type: "range";
       startDate: string;
       endDate: string;
+    }
+  | {
+      type: "search";
+      startDate: string;
+      endDate: string;
+      keyword: string;
     };
 
 export type IntentResult = {
@@ -48,6 +54,52 @@ const hasScheduleIntent = (text: string): boolean => {
   );
 };
 
+const hasSearchIntent = (text: string): boolean => {
+  const naturalSearchPattern =
+    /\b(?:is there|are there|do i have)\s+(?:any\s+)?(?:an?\s+)?[a-z0-9][a-z0-9\s-]{1,60}\s+(?:on|between|from|this week|today|tomorrow|\d{4}-\d{2}-\d{2})\b/i;
+
+  return (
+    text.includes("search") ||
+    text.includes("find") ||
+    text.includes("look for") ||
+    naturalSearchPattern.test(text)
+  );
+};
+
+const extractSearchKeyword = (text: string): string | null => {
+  const keywordPattern = /\bkeyword\s+"?([a-z0-9][a-z0-9\s-]{0,60})"?/i;
+  const keywordMatch = text.match(keywordPattern);
+
+  if (keywordMatch?.[1]) {
+    return keywordMatch[1].trim();
+  }
+
+  const quotedPattern = /"([^"]{1,60})"/;
+  const quotedMatch = text.match(quotedPattern);
+
+  if (quotedMatch?.[1] && hasSearchIntent(text)) {
+    return quotedMatch[1].trim();
+  }
+
+  const searchPattern =
+    /\b(?:search|find|look for)\s+(?:events?\s+)?(?:for|about|with|containing)?\s*([a-z0-9][a-z0-9\s-]{0,60}?)(?=\s+(?:on|between|from|this week|today|tomorrow|\d{4}-\d{2}-\d{2})\b|$)/i;
+  const searchMatch = text.match(searchPattern);
+
+  if (searchMatch?.[1]) {
+    return searchMatch[1].trim();
+  }
+
+  const naturalQuestionPattern =
+    /\b(?:is there|are there|do i have)\s+(?:any\s+)?(?:an?\s+)?([a-z0-9][a-z0-9\s-]{1,60}?)(?=\s+(?:on|between|from|this week|today|tomorrow|\d{4}-\d{2}-\d{2})\b|[?.!]|$)/i;
+  const naturalQuestionMatch = text.match(naturalQuestionPattern);
+
+  if (naturalQuestionMatch?.[1]) {
+    return naturalQuestionMatch[1].trim();
+  }
+
+  return null;
+};
+
 const resolveDate = (text: string): string => {
   const today = getTodayDate();
   const extracted = extractDateFromText(text);
@@ -65,6 +117,27 @@ const resolveDate = (text: string): string => {
 
 const resolveScheduleQuery = (text: string): ScheduleQuery => {
   const dateRange = extractDateRangeFromText(text);
+
+  if (hasSearchIntent(text)) {
+    const date = resolveDate(text);
+    const keyword = extractSearchKeyword(text) ?? "event";
+
+    if (dateRange) {
+      return {
+        type: "search",
+        startDate: dateRange.startDate,
+        endDate: dateRange.endDate,
+        keyword,
+      };
+    }
+
+    return {
+      type: "search",
+      startDate: date,
+      endDate: date,
+      keyword,
+    };
+  }
 
   if (dateRange) {
     return {

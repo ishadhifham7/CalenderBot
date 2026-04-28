@@ -151,3 +151,24 @@ export const getScheduleForRange = async (
     freeSlots: allFreeSlots,
   };
 };
+
+export const searchEvents = async (
+  startDate: string,
+  endDate: string,
+  keyword: string,
+) => {
+  // 🔁 reuse existing range function
+  const schedule = await getScheduleForRange(startDate, endDate);
+
+  const normalizedKeyword = keyword.toLowerCase().trim();
+
+  // 🧠 basic keyword filtering (can upgrade later)
+  const filteredEvents = schedule.events.filter((event) =>
+    event.title.toLowerCase().includes(normalizedKeyword),
+  );
+
+  return {
+    events: filteredEvents,
+    freeSlots: schedule.freeSlots,
+  };
+};
