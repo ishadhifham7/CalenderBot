@@ -12,7 +12,7 @@ and receive instant responses.
 
 - 💬 Natural language-based calendar queries  
 - 📅 Google Calendar API integration  
-- ☁️ Cloud deployment using WSO2 Choreo  
+- ☁️ Cloud deployment using Choreo  
 - 🚦 API rate limiting for stability  
 - ⚡ Real-time schedule retrieval  
 
@@ -32,7 +32,7 @@ and receive instant responses.
 
 - Backend: Node.js, TypeScript  
 - APIs: Google Calendar API  
-- Cloud: WSO2 Choreo  
+- Cloud: Choreo  
 - Others: REST APIs, Rate Limiting, Tuari
 
 ---
