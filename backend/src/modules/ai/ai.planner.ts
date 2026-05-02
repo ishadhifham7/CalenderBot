@@ -12,7 +12,16 @@ type PlannerResult = {
 
 const DEFAULT_MODEL = "llama-3.1-8b-instant";
 
-const SYSTEM_PROMPT = `You are a calendar planning engine.
+const buildSystemPrompt = (context: {
+  currentDate: string;
+  timeZone: string;
+  repairError?: string;
+}): string => {
+  const repairNote = context.repairError
+    ? `\nPREVIOUS ERROR:\n${context.repairError}\nFix the JSON to satisfy the schema.\n`
+    : "";
+
+  return `You are a calendar planning engine.
 
 Your ONLY job is to convert user messages into structured JSON commands.
 
@@ -37,9 +46,17 @@ Rules:
 - Multiple days/week → type = range
 - If keyword present → type = search
 - Always infer dates logically
-- If unclear, assume nearest future date
+- If unclear, assume nearest future date using the current date as the anchor
 - Never hallucinate data
-`;
+- Required fields by type:
+  - date: must include date
+  - range: must include startDate and endDate
+  - search: must include startDate, endDate, and keyword
+
+Current date: ${context.currentDate}
+Time zone: ${context.timeZone}
+${repairNote}`;
+};
 
 const getApiKey = (): string => {
   const apiKey = process.env.GROQ_API_KEY?.trim();
@@ -97,10 +114,39 @@ const parsePlannerJson = (raw: string): PlannerResult => {
     }
   }
 
+  const requiredFieldsByType: Record<
+    PlannerType,
+    Array<keyof PlannerResult>
+  > = {
+    date: ["date"],
+    range: ["startDate", "endDate"],
+    search: ["startDate", "endDate", "keyword"],
+  };
+
+  const requiredFields = requiredFieldsByType[result.type];
+
+  for (const field of requiredFields) {
+    const value = result[field];
+    if (typeof value !== "string" || !value.trim()) {
+      throw new Error(`Planner response missing required '${field}'`);
+    }
+  }
+
   return result as PlannerResult;
 };
 
-export const callPlanner = async (message: string): Promise<PlannerResult> => {
+const getCurrentDate = (): string => {
+  return new Date().toISOString().split("T")[0];
+};
+
+const getTimeZone = (): string => {
+  return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+};
+
+export const callPlanner = async (
+  message: string,
+  options?: { repairError?: string },
+): Promise<PlannerResult> => {
   const trimmedMessage = message.trim();
 
   if (!trimmedMessage) {
@@ -116,7 +162,11 @@ export const callPlanner = async (message: string): Promise<PlannerResult> => {
     messages: [
       {
         role: "system",
-        content: SYSTEM_PROMPT,
+        content: buildSystemPrompt({
+          currentDate: getCurrentDate(),
+          timeZone: getTimeZone(),
+          repairError: options?.repairError,
+        }),
       },
       {
         role: "user",
