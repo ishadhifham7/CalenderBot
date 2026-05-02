@@ -1,6 +1,7 @@
 import { google } from "googleapis";
 import { normalizeEvents } from "./calender.mapper";
 import { calculateFreeSlots } from "../../utils/freeSlots.util";
+import { getColomboDayBounds } from "../../utils/time.utils";
 
 const CALENDAR_SCOPES = ["https://www.googleapis.com/auth/calendar"];
 
@@ -63,22 +64,27 @@ const getCalendarClient = () => {
  */
 export const getScheduleForDate = async (date: string) => {
   const calendar = getCalendarClient();
-
-  const startOfDay = new Date(date);
-  startOfDay.setHours(0, 0, 0, 0);
-
-  const endOfDay = new Date(date);
-  endOfDay.setHours(23, 59, 59, 999);
+  const { start: startOfDay, end: endOfDay } = getColomboDayBounds(date);
+  const calendarId = "ishadhifham@gmail.com";
 
   const response = await calendar.events.list({
-    calendarId: "ishadhifham@gmail.com",
+    calendarId,
     timeMin: startOfDay.toISOString(),
     timeMax: endOfDay.toISOString(),
+    timeZone: "Asia/Colombo",
     singleEvents: true,
     orderBy: "startTime",
   });
 
   const rawEvents = response.data.items || [];
+
+  console.log("[calendar] date query", {
+    calendarId,
+    date,
+    timeMin: startOfDay.toISOString(),
+    timeMax: endOfDay.toISOString(),
+    events: rawEvents.length,
+  });
 
   const events = normalizeEvents(rawEvents);
   const freeSlots = calculateFreeSlots(events, date);
@@ -94,23 +100,29 @@ export const getScheduleForRange = async (
   endDate: string,
 ) => {
   const calendar = getCalendarClient();
-
-  const start = new Date(startDate);
-  const end = new Date(endDate);
-
-  // normalize boundaries
-  start.setHours(0, 0, 0, 0);
-  end.setHours(23, 59, 59, 999);
+  const { start: rangeStart } = getColomboDayBounds(startDate);
+  const { end: rangeEnd } = getColomboDayBounds(endDate);
+  const calendarId = "ishadhifham@gmail.com";
 
   const response = await calendar.events.list({
-    calendarId: "ishadhifham@gmail.com",
-    timeMin: start.toISOString(),
-    timeMax: end.toISOString(),
+    calendarId,
+    timeMin: rangeStart.toISOString(),
+    timeMax: rangeEnd.toISOString(),
+    timeZone: "Asia/Colombo",
     singleEvents: true,
     orderBy: "startTime",
   });
 
   const rawEvents = response.data.items || [];
+
+  console.log("[calendar] range query", {
+    calendarId,
+    startDate,
+    endDate,
+    timeMin: rangeStart.toISOString(),
+    timeMax: rangeEnd.toISOString(),
+    events: rawEvents.length,
+  });
 
   // normalize ALL events first
   const allEvents = normalizeEvents(rawEvents);
@@ -131,10 +143,17 @@ export const getScheduleForRange = async (
   const allFreeSlots: { start: string; end: string }[] = [];
 
   // 🧠 iterate day-by-day
-  let current = new Date(start);
+  const addDays = (value: string, days: number) => {
+    const [year, month, day] = value.split("-").map(Number);
+    const date = new Date(Date.UTC(year, month - 1, day));
+    date.setUTCDate(date.getUTCDate() + days);
+    return date.toISOString().split("T")[0];
+  };
 
-  while (current <= end) {
-    const dayKey = current.toISOString().split("T")[0];
+  let current = startDate;
+
+  while (current <= endDate) {
+    const dayKey = current;
 
     const dayEvents = eventsByDay[dayKey] || [];
 
@@ -143,7 +162,7 @@ export const getScheduleForRange = async (
 
     allFreeSlots.push(...freeSlots);
 
-    current.setDate(current.getDate() + 1);
+    current = addDays(current, 1);
   }
 
   return {

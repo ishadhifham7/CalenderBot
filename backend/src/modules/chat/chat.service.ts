@@ -2,9 +2,26 @@ import { generateAIResponse } from "../ai/ai.service";
 import { callPlanner } from "../ai/ai.planner";
 import { validatePlan } from "../ai/ai.plan.validator";
 import { executePlan } from "../../services/calendar/calendar.executor";
+import { parseColomboDateTime } from "../../utils/time.utils";
 
 type ChatResult = {
   answer: string;
+};
+
+const hasScheduleConflict = (
+  events: Array<{ start: string; end: string }>,
+  date: string,
+  time: string,
+  durationMinutes: number,
+): boolean => {
+  const slotStart = parseColomboDateTime(`${date} ${time}`);
+  const slotEnd = new Date(slotStart.getTime() + durationMinutes * 60 * 1000);
+
+  return events.some((event) => {
+    const eventStart = parseColomboDateTime(event.start);
+    const eventEnd = parseColomboDateTime(event.end);
+    return eventStart < slotEnd && eventEnd > slotStart;
+  });
 };
 
 export const handleUserMessage = async (
@@ -36,6 +53,22 @@ export const handleUserMessage = async (
   }
 
   const schedule = await executePlan(validatedPlan);
+
+  if (validatedPlan.intent === "schedule") {
+    const conflict = hasScheduleConflict(
+      schedule.events,
+      validatedPlan.date,
+      validatedPlan.time,
+      validatedPlan.durationMinutes,
+    );
+
+    if (conflict) {
+      return {
+        answer: `You already have something at ${validatedPlan.time} on ${validatedPlan.date}, so that slot is not free.`,
+      };
+    }
+  }
+
   const aiResult = await generateAIResponse({
     message,
     schedule,

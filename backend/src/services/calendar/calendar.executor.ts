@@ -5,24 +5,43 @@ import {
 } from "../../modules/calender/googleCalendar.service";
 
 type DatePlan = {
-  type: "date";
+  intent: "date";
   date: string;
 };
 
 type RangePlan = {
-  type: "range";
+  intent: "range";
   startDate: string;
   endDate: string;
 };
 
 type SearchPlan = {
-  type: "search";
+  intent: "search";
   startDate: string;
   endDate: string;
   keyword: string;
 };
 
-type ValidatedPlan = DatePlan | RangePlan | SearchPlan;
+type SchedulePlan = {
+  intent: "schedule";
+  date: string;
+  time: string;
+  durationMinutes: number;
+};
+
+type FindSlotPlan = {
+  intent: "find_slot";
+  startDate: string;
+  endDate: string;
+  durationMinutes: number;
+};
+
+type ValidatedPlan =
+  | DatePlan
+  | RangePlan
+  | SearchPlan
+  | SchedulePlan
+  | FindSlotPlan;
 
 type ScheduleResult = {
   events: Array<{ title: string; start: string; end: string }>;
@@ -33,23 +52,31 @@ export const executePlan = async (
   plan: ValidatedPlan,
 ): Promise<ScheduleResult> => {
   try {
-    if (plan.type === "date") {
+    if (plan.intent === "date") {
       return await getScheduleForDate(plan.date);
     }
 
-    if (plan.type === "range") {
+    if (plan.intent === "range") {
       return await getScheduleForRange(plan.startDate, plan.endDate);
     }
 
-    if (plan.type === "search") {
+    if (plan.intent === "search") {
       return await searchEvents(plan.startDate, plan.endDate, plan.keyword);
+    }
+
+    if (plan.intent === "schedule") {
+      return await getScheduleForDate(plan.date);
+    }
+
+    if (plan.intent === "find_slot") {
+      return await getScheduleForRange(plan.startDate, plan.endDate);
     }
   } catch (error) {
     const details = error instanceof Error ? error.message : "unknown error";
     throw new Error(`Failed to execute plan: ${details}`);
   }
 
-  throw new Error("Unsupported plan type");
+  throw new Error("Unsupported plan intent");
 };
 
 /*
@@ -57,7 +84,7 @@ Example usage:
 
 (async () => {
   const result = await executePlan({
-    type: "search",
+    intent: "search",
     startDate: "2026-05-01",
     endDate: "2026-05-07",
     keyword: "gym",
