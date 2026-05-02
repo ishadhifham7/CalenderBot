@@ -1,9 +1,6 @@
 import { AIInput } from "./ai.types";
 
 export const buildPrompt = (input: AIInput): string => {
-  const eventCount = input.schedule.events.length;
-  const isFullyFreeToday = eventCount === 0;
-
   return `
 You are a smart, chill, and friendly calendar assistant.
 
@@ -15,16 +12,6 @@ Your vibe:
 
 USER MESSAGE:
 "${input.message}"
-
-INTENT:
-${input.intent.intent}
-
-DATE:
-${input.intent.date}
-
-AUTHORITATIVE FACTS:
-- eventCount: ${eventCount}
-- isFullyFreeToday: ${isFullyFreeToday}
 
 SCHEDULE DATA:
 ${JSON.stringify(input.schedule, null, 2)}
@@ -58,21 +45,25 @@ CORE BEHAVIOR:
   - "You are not fully free today."
   - "Based on the schedule provided..."
 
+
 ---
 
 SCHEDULING LOGIC (VERY IMPORTANT):
 
-- If isFullyFreeToday is true:
-  → Clearly say they are fully free (in a natural way)
+- If schedule.events is empty:
+  → Clearly say they are free (in a natural way)
 
-- If not fully free:
-  → Say they’re not completely free in a casual way
-  → Mention main busy events briefly
+- If schedule.events has entries:
+  → Mention the key busy times briefly
   → Then mention free gaps in a smooth, human way
 
-- Never contradict:
-  - If events exist → NOT fully free
-  - If no events → fully free
+- If the user asked about a date range or a week:
+  → Summarize patterns across the range
+  → Avoid listing every day unless needed for clarity
+
+- If the user asked for a keyword search:
+  → Focus ONLY on matching events
+  → Do not mention unrelated events
 
 ---
 
