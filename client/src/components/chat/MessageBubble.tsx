@@ -30,29 +30,32 @@ const MessageBubble = ({ message }: Props) => {
         }
 
         .bubble {
-          padding: 12px 16px;
-          border-radius: 16px;
-          max-width: 80%;
-          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-          font-size: 14.5px;
-          font-weight: 400;
-          line-height: 1.55;
-          letter-spacing: -0.015em;
-          text-align: left;
-          box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+          padding: 16px 20px;
+          max-width: 75%;
+          font-family: var(--sans);
+          font-size: 15px;
+          line-height: 1.6;
+          letter-spacing: -0.01em;
+          box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
         }
 
         .user {
-          background: #334155;
+          background: rgba(40, 42, 54, 0.4);
           color: #ffffff;
-          border-bottom-right-radius: 4px;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 1.25rem;
+          border-bottom-right-radius: 0.25rem;
           text-align: right;
         }
 
         .assistant {
-          background: #1e293b;
-          color: #f1f5f9;
-          border-bottom-left-radius: 4px;
+          background: rgba(16, 185, 129, 0.1);
+          color: #f8fafc;
+          border: 1px solid rgba(16, 185, 129, 0.15);
+          border-radius: 1.25rem;
+          border-bottom-left-radius: 0.25rem;
           text-align: left;
         }
       `}</style>

@@ -25,7 +25,7 @@ const ChatInput = ({ onSend, loading, error }: Props) => {
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSend()}
-          placeholder="Message..."
+          placeholder="Type your message..."
           disabled={loading}
         />
 
@@ -38,12 +38,12 @@ const ChatInput = ({ onSend, loading, error }: Props) => {
             <span className="spinner"></span>
           ) : (
             <svg
-              width="18"
-              height="18"
+              width="20"
+              height="20"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              strokeWidth="2"
+              strokeWidth="1.5"
               strokeLinecap="round"
               strokeLinejoin="round"
             >
@@ -56,23 +56,24 @@ const ChatInput = ({ onSend, loading, error }: Props) => {
 
       <style>{`
         .chat-input-container {
-          padding: 16px 20px 24px;
-          background: #0f172a;
-          border-top: 1px solid #1e293b;
+          position: relative;
+          width: 100%;
         }
 
         .input-group {
           display: flex;
           align-items: center;
-          gap: 10px;
-          background: #1e293b;
-          border: 1px solid #334155;
-          border-radius: 12px;
-          padding: 4px 4px 4px 14px;
+          gap: 12px;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 999px;
+          padding: 8px 8px 8px 24px;
+          transition: border-color 0.2s, background 0.2s;
         }
 
         .input-group:focus-within {
-          border-color: #475569;
+          border-color: rgba(16, 185, 129, 0.4);
+          background: rgba(255, 255, 255, 0.08);
         }
 
         input {
@@ -80,7 +81,8 @@ const ChatInput = ({ onSend, loading, error }: Props) => {
           background: transparent;
           border: none;
           color: #f8fafc;
-          font-size: 14px;
+          font-family: var(--sans);
+          font-size: 15px;
           outline: none;
           padding: 8px 0;
         }
@@ -90,49 +92,57 @@ const ChatInput = ({ onSend, loading, error }: Props) => {
         }
 
         button {
-          width: 32px;
-          height: 32px;
+          width: 40px;
+          height: 40px;
           display: flex;
           align-items: center;
           justify-content: center;
-          background: #f8fafc;
-          color: #0f172a;
-          border: none;
-          border-radius: 8px;
+          background: rgba(16, 185, 129, 0.15);
+          color: #10b981;
+          border: 1px solid transparent;
+          border-radius: 50%;
           cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        button:hover:not(:disabled) {
+          background: rgba(16, 185, 129, 0.25);
+          transform: scale(1.05);
         }
 
         button:disabled {
-          background: #334155;
+          background: rgba(255, 255, 255, 0.05);
           color: #64748b;
           cursor: not-allowed;
         }
 
         .chat-error-toast {
           position: absolute;
-          bottom: 80px;
-          left: 20px;
-          right: 20px;
-          background: #450a0a;
-          color: #fecaca;
-          font-size: 12px;
-          padding: 8px 12px;
-          border-radius: 8px;
-          border: 1px solid #7f1d1d;
-          animation: slideUp 0.2s ease;
+          bottom: calc(100% + 12px);
+          left: 50%;
+          transform: translateX(-50%);
+          background: rgba(220, 38, 38, 0.2);
+          backdrop-filter: blur(8px);
+          color: #fca5a5;
+          font-size: 13px;
+          padding: 10px 16px;
+          border-radius: 12px;
+          border: 1px solid rgba(220, 38, 38, 0.3);
+          animation: slideUpFade 0.3s ease;
+          white-space: nowrap;
         }
 
-        @keyframes slideUp {
-          from { transform: translateY(5px); opacity: 0; }
-          to { transform: translateY(0); opacity: 1; }
+        @keyframes slideUpFade {
+          from { transform: translate(-50%, 10px); opacity: 0; }
+          to { transform: translate(-50%, 0); opacity: 1; }
         }
 
         .spinner {
-          width: 14px;
-          height: 14px;
-          border: 2px solid rgba(15, 23, 42, 0.2);
+          width: 16px;
+          height: 16px;
+          border: 2px solid rgba(16, 185, 129, 0.3);
           border-radius: 50%;
-          border-top-color: #0f172a;
+          border-top-color: #10b981;
           animation: spin 0.8s linear infinite;
         }
 

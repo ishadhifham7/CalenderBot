@@ -1,8 +1,5 @@
-import type { IntentResult } from "../intent/intent.service";
-
 export type AIInput = {
   message: string;
-  intent: IntentResult;
   schedule: {
     events: Array<{
       title: string;
