@@ -39,6 +39,7 @@ const MessageBubble = ({ message }: Props) => {
           box-shadow: 0 4px 15px rgba(0,0,0,0.1);
           backdrop-filter: blur(12px);
           -webkit-backdrop-filter: blur(12px);
+          white-space: pre-line;
         }
 
         .user {
