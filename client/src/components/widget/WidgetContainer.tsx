@@ -1,9 +1,11 @@
 import ChatBox from "../chat/ChatBox";
 import ChatInput from "../chat/ChatInput";
+import ThinkingIndicator from "../chat/ThinkingIndicator";
 import { useAssistant } from "../../features/assistant/assistantHooks";
 
 const WidgetContainer = () => {
-  const { messages, sendMessage, loading, error } = useAssistant();
+  const { messages, sendMessage, loading, error, thinkingStep } =
+    useAssistant();
 
   return (
     <div className="web-chat-container">
@@ -33,6 +35,11 @@ const WidgetContainer = () => {
 
         <div className="chat-body">
           <ChatBox messages={messages} />
+          {thinkingStep && (
+            <div className="thinking-wrapper">
+              <ThinkingIndicator step={thinkingStep} />
+            </div>
+          )}
         </div>
 
         <div className="chat-footer floating-plate">
@@ -132,6 +139,20 @@ const WidgetContainer = () => {
           display: flex;
           flex-direction: column;
           overflow: hidden;
+          position: relative;
+        }
+
+        .thinking-wrapper {
+          position: absolute;
+          bottom: 0;
+          left: 16px;
+          right: 16px;
+          display: flex;
+          justify-content: flex-start;
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+          background: linear-gradient(to top, rgba(11, 12, 16, 0.9), transparent);
+          padding-bottom: 8px;
         }
 
         .chat-footer {
